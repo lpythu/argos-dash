@@ -1,26 +1,27 @@
-ARG NODE_IMAGE=node:22-alpine
-ARG BASE_IMAGE=python:3.12-slim-bookworm
+ARG NODE_IMAGE=saidc-registry.cn-hongkong.cr.aliyuncs.com/base/saidc-node:22-pnpm11.12.0
+ARG BASE_IMAGE=saidc-registry.cn-hongkong.cr.aliyuncs.com/base/saidc-uv:0.12.0
 
 FROM ${NODE_IMAGE} AS ui
 WORKDIR /ui
-COPY ui/package.json ui/package-lock.json* ./
-RUN --mount=type=cache,target=/root/.npm npm install
+COPY ui/package.json ui/package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci
 COPY ui/ ./
 RUN npm run build && npm run build:report
 
 FROM ${BASE_IMAGE}
 WORKDIR /app
-COPY pyproject.toml alembic.ini entrypoint.sh skill.md ./
+COPY pyproject.toml uv.lock ./
+RUN --mount=type=secret,id=netrc,target=/root/.netrc \
+    --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --no-install-project
+COPY alembic.ini entrypoint.sh skill.md ./
 COPY alembic ./alembic
 COPY *.py ./
 COPY routers ./routers
-RUN --mount=type=cache,target=/root/.cache/uv \
-    python -c 'import tomllib, pathlib; print("\n".join(tomllib.load(pathlib.Path("pyproject.toml").open("rb"))["project"]["dependencies"]))' \
-    | uv pip install --system -r -
 COPY --from=ui /ui/dist ./ui/dist
 COPY --from=ui /ui/dist-report ./report-view
-RUN printf '{"ingest":"1"}\n' > /app/report-view/manifest.json
-RUN chmod +x /app/entrypoint.sh
+RUN printf '{"ingest":"1"}\n' > /app/report-view/manifest.json \
+    && chmod +x /app/entrypoint.sh
 ENV PYTHONPATH=/app
 ENV PORT=8080
 EXPOSE 8080

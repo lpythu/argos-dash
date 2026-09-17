@@ -1,0 +1,14 @@
+.git
+.github
+.acahti
+.cursor
+chart
+.venv
+venv
+__pycache__
+*.pyc
+.env
+.env.*
+ui/node_modules
+ui/dist
+ui/dist-report
