@@ -10,7 +10,6 @@ RUN npm run build && npm run build:report
 
 FROM ${BASE_IMAGE}
 WORKDIR /app
-RUN pip install --no-cache-dir uv
 COPY pyproject.toml alembic.ini entrypoint.sh skill.md ./
 COPY alembic ./alembic
 COPY *.py ./
