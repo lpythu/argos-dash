@@ -3,5 +3,6 @@ __pycache__/
 .venv/
 ui/node_modules/
 ui/dist/
+ui/dist-report/
 *.egg-info/
 .DS_Store

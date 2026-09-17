@@ -8,7 +8,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "./src"),
-      "@argos/report-view": path.resolve(import.meta.dirname, "./src/vendor/report-view/index.ts"),
     },
   },
   server: {
@@ -18,6 +17,7 @@ export default defineConfig({
       "/api": { target: "http://127.0.0.1:8080", changeOrigin: true },
       "/skill.md": { target: "http://127.0.0.1:8080", changeOrigin: true },
       "/health": { target: "http://127.0.0.1:8080", changeOrigin: true },
+      "/report-view": { target: "http://127.0.0.1:8080", changeOrigin: true },
     },
   },
   build: {

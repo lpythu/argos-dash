@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom"
 
 import { api } from "@/lib/api"
 import { t } from "@/lib/i18n"
-import { ReportView, type ReportPayload } from "@argos/report-view"
+import { ReportView, type ReportPayload } from "@/report-view"
 
 export function ReportPage() {
   const { id } = useParams()

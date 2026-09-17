@@ -17,6 +17,8 @@ from routers.runs import router as runs_router
 from skill import default_origin, render_skill
 
 UI = Path(__file__).resolve().parent / "ui" / "dist"
+REPORT_VIEW = Path(__file__).resolve().parent / "report-view"
+INGEST_VERSION = "1"
 
 
 @asynccontextmanager
@@ -55,6 +57,28 @@ async def skill_md(request: Request) -> Response:
         media_type="text/markdown; charset=utf-8",
         headers={"Access-Control-Allow-Origin": "*"},
     )
+
+
+@app.get("/report-view/manifest.json")
+async def report_view_manifest() -> dict:
+    return {"ingest": INGEST_VERSION}
+
+
+def _report_asset(name: str, media_type: str) -> FileResponse:
+    path = REPORT_VIEW / name
+    if not path.is_file():
+        raise HTTPException(404, "report view is not built")
+    return FileResponse(path, media_type=media_type)
+
+
+@app.get("/report-view/viewer.js")
+async def report_view_js() -> FileResponse:
+    return _report_asset("viewer.js", "text/javascript; charset=utf-8")
+
+
+@app.get("/report-view/viewer.css")
+async def report_view_css() -> FileResponse:
+    return _report_asset("viewer.css", "text/css; charset=utf-8")
 
 
 if UI.is_dir():

@@ -1,0 +1,68 @@
+when:
+  - event: [push, manual]
+    branch: [dev]
+
+concurrency:
+  limit: 1
+  group: deploy
+
+labels:
+  deploy: true
+
+steps:
+  login:
+    pipe: docker-login@v1
+    with:
+      registry: harbor.saidc
+      http: true
+    secrets:
+      DOCKER_USERNAME: harbor_username
+      DOCKER_PASSWORD: harbor_password
+  build:
+    depends_on:
+      - login
+    pipe: docker-build@v1
+    with:
+      images: |
+        harbor.saidc/platform/argos:dev-${CI_COMMIT_SHA} also=harbor.saidc/platform/argos:latest BASE_IMAGE=harbor.saidc/base/saidc-uv:0.12.0 NODE_IMAGE=harbor.saidc/base/saidc-node:22-pnpm11.12.0
+  deploy:
+    depends_on:
+      - build
+    pipe: helm@v1
+    secrets:
+      KUBECONFIG: kubeconfig_office
+    with:
+      release: argos
+      namespace: platform
+      chart: chart
+      files: |
+        chart/values.yaml
+        chart/values-office.yaml
+      take_ownership: true
+      set: |
+        image.tag=dev-${CI_COMMIT_SHA}
+  gc:
+    depends_on:
+      - deploy
+    pipe: oci-gc@v1
+    with:
+      repos: |
+        harbor.saidc/platform/argos
+  wait:
+    depends_on:
+      - gc
+    pipe: wait-http@v1
+    with:
+      urls: |
+        https://argos.saidc.ai/health
+  e2e:
+    depends_on:
+      - wait
+    pipe: uv@v1
+    secrets:
+      ARGOS_DASH_URL: argos_dash_url
+      ARGOS_TOKEN: argos_token
+    with:
+      project: .acahti/argos
+      run: |
+        argos run all --env office --dash

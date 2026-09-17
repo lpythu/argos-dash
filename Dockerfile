@@ -6,7 +6,7 @@ WORKDIR /ui
 COPY ui/package.json ui/package-lock.json* ./
 RUN --mount=type=cache,target=/root/.npm npm install
 COPY ui/ ./
-RUN npm run build
+RUN npm run build && npm run build:report
 
 FROM ${BASE_IMAGE}
 WORKDIR /app
@@ -19,6 +19,8 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     python -c 'import tomllib, pathlib; print("\n".join(tomllib.load(pathlib.Path("pyproject.toml").open("rb"))["project"]["dependencies"]))' \
     | uv pip install --system -r -
 COPY --from=ui /ui/dist ./ui/dist
+COPY --from=ui /ui/dist-report ./report-view
+RUN printf '{"ingest":"1"}\n' > /app/report-view/manifest.json
 RUN chmod +x /app/entrypoint.sh
 ENV PYTHONPATH=/app
 ENV PORT=8080
