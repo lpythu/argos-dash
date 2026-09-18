@@ -4,7 +4,7 @@ OFFICE = "office"
 
 _PRESETS = {
     "office": {
-        "ARGOS_DASH_URL": "https://argos.saidc.ai",
+        "ARGOS_DASH_URL": "https://argos.s-aidc.com",
     },
 }
 

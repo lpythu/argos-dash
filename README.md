@@ -2,7 +2,7 @@
 
 Self-hosted run browser for [argos](https://lpythu.github.io/argos/). It does **not** run cases. The CLI (`argospy`) optionally POSTs a local run here and may `GET /report-view` for the local HTML template.
 
-Office: https://argos.saidc.ai — Helm release `argos`, image `harbor.saidc/platform/argos`.
+Office: https://argos.s-aidc.com — Helm release `argos`, image `harbor.saidc/platform/argos`.
 
 - Product architecture: https://lpythu.github.io/argos/architecture/
 - Ingest (CLI → this service): https://lpythu.github.io/argos/ingest/
