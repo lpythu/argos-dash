@@ -1,5 +1,5 @@
-ARG NODE_IMAGE=saidc-registry.cn-hongkong.cr.aliyuncs.com/base/saidc-node:22-pnpm11.12.0
-ARG BASE_IMAGE=saidc-registry.cn-hongkong.cr.aliyuncs.com/base/saidc-uv:0.12.0
+ARG NODE_IMAGE=saidc-bj-registry.cn-beijing.cr.aliyuncs.com/base/saidc-node:22-pnpm11.12.0
+ARG BASE_IMAGE=saidc-bj-registry.cn-beijing.cr.aliyuncs.com/base/saidc-uv:0.12.0
 
 FROM ${NODE_IMAGE} AS ui
 WORKDIR /ui
