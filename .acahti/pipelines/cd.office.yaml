@@ -54,7 +54,7 @@ steps:
     pipe: wait-http@v1
     with:
       urls: |
-        https://argos.saidc.ai/health
+        https://argos.s-aidc.com/health
   e2e:
     depends_on:
       - wait

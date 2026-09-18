@@ -51,6 +51,13 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "2"
+              memory: "2Gi"
           startupProbe:
             httpGet:
               path: {{ default "/health" $w.healthPath }}
