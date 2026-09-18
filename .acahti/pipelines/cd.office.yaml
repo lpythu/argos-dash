@@ -65,4 +65,4 @@ steps:
     with:
       project: .acahti/argos
       run: |
-        argos run all --env office --dash
+        argos run all --env office --dash https://argos.s-aidc.com
