@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Link, NavLink, Navigate, Outlet } from "react-router-dom"
 
+import { ArgosMark } from "@/components/logo"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { api, type Me, type Overview } from "@/lib/api"
@@ -54,7 +55,8 @@ export function AppShell() {
     <div className="min-h-svh">
       <header className="flex items-center justify-between border-b px-6 py-3">
         <nav className="flex items-center gap-4 text-sm">
-          <Link to="/" className="font-medium">
+          <Link to="/" className="flex items-center gap-2 font-medium">
+            <ArgosMark className="size-6 text-foreground" />
             {t("brand")}
           </Link>
           {links.map((item) => (

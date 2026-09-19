@@ -1,6 +1,7 @@
 import { type FormEvent, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
+import { ArgosMark } from "@/components/logo"
 import { Button } from "@/components/ui/button"
 import { Card, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -27,7 +28,10 @@ export function LoginPage() {
   return (
     <div className="flex min-h-svh items-center justify-center bg-muted p-6">
       <Card className="w-full max-w-sm space-y-4">
-        <CardTitle>{t("brand")}</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <ArgosMark className="size-6 text-foreground" />
+          {t("brand")}
+        </CardTitle>
         <form className="space-y-3" onSubmit={onSubmit}>
           <label className="block space-y-1 text-sm">
             <span>{t("username")}</span>
