@@ -1,7 +1,7 @@
 """sso identities and nullable password
 
-Revision ID: 20260921_0002
-Revises: 20260914_0001
+Revision ID: 20260921_0003
+Revises: 20260917_0002
 Create Date: 2026-09-21
 """
 
@@ -11,8 +11,8 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
-revision: str = "20260921_0002"
-down_revision: str | Sequence[str] | None = "20260914_0001"
+revision: str = "20260921_0003"
+down_revision: str | Sequence[str] | None = "20260917_0002"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
