@@ -47,3 +47,7 @@ def admin_user() -> str:
 
 def admin_password() -> str:
     return os.environ.get("DASH_ADMIN_PASSWORD", "")
+
+
+def sso_providers_json() -> str:
+    return os.environ.get("DASH_SSO_PROVIDERS", "").strip()

@@ -3,14 +3,17 @@ import hmac
 import secrets
 from uuid import UUID
 
-from fastapi import Cookie, Depends, Header, HTTPException
+from fastapi import Cookie, Depends, Header, HTTPException, Response
 from itsdangerous import BadSignature, URLSafeTimedSerializer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from config import ingest_token, secret_key
+from config import ingest_token, public_url, secret_key
 from database import get_db
 from models import User
+
+SESSION_MAX_AGE = 14 * 24 * 3600
+OAUTH_MAX_AGE = 600
 
 
 def _signer() -> URLSafeTimedSerializer:
@@ -23,16 +26,42 @@ def hash_password(password: str, salt: str = "") -> str:
     return f"{used}${digest}"
 
 
-def check_password(password: str, stored: str) -> bool:
-    if "$" not in stored:
+def check_password(password: str, stored: str | None) -> bool:
+    if not stored or "$" not in stored:
         return False
     salt, digest = stored.split("$", 1)
     expect = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), 200_000).hex()
     return hmac.compare_digest(expect, digest)
 
 
+def cookie_secure() -> bool:
+    return public_url().startswith("https://")
+
+
 def session_cookie(user_id: UUID) -> str:
     return _signer().dumps(str(user_id))
+
+
+def attach_session(response: Response, user_id: UUID) -> None:
+    response.set_cookie(
+        "dash_session",
+        session_cookie(user_id),
+        httponly=True,
+        samesite="lax",
+        max_age=SESSION_MAX_AGE,
+        secure=cookie_secure(),
+    )
+
+
+def attach_oauth(response: Response, value: str) -> None:
+    response.set_cookie(
+        "dash_oauth",
+        value,
+        httponly=True,
+        samesite="lax",
+        max_age=OAUTH_MAX_AGE,
+        secure=cookie_secure(),
+    )
 
 
 def user_id_from_cookie(value: str) -> UUID:

@@ -6,7 +6,9 @@ Office: https://argos.s-aidc.com — Helm release `argos`, image `harbor.saidc/p
 
 - Product architecture: https://lpythu.github.io/argos/architecture/
 - Ingest (CLI → this service): https://lpythu.github.io/argos/ingest/
-- This repo (UI ownership, Postgres, hostPath, Acahti CD): [docs/architecture.md](docs/architecture.md)
+- This repo (UI ownership, Postgres, hostPath, Acahti CD, login / SSO): [docs/architecture.md](docs/architecture.md)
+
+Login is local username/password plus optional SSO providers. See architecture Auth.
 
 Git: https://acahti.saidc.ai/saidc/argos-dash — `git push origin dev` deploys office.
 

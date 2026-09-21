@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, func
+from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -14,10 +14,23 @@ class User(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     login: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
-    password_hash: Mapped[str] = mapped_column(String(256), nullable=False)
+    password_hash: Mapped[str | None] = mapped_column(String(256), nullable=True)
     name: Mapped[str] = mapped_column(String(128), nullable=False, default="")
 
     comments: Mapped[list["Comment"]] = relationship(back_populates="author")
+    identities: Mapped[list["Identity"]] = relationship(back_populates="user")
+
+
+class Identity(Base):
+    __tablename__ = "identities"
+    __table_args__ = (UniqueConstraint("provider", "subject"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    provider: Mapped[str] = mapped_column(String(32), nullable=False)
+    subject: Mapped[str] = mapped_column(String(256), nullable=False)
+
+    user: Mapped["User"] = relationship(back_populates="identities")
 
 
 class Run(Base):

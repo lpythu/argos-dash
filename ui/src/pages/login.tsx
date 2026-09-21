@@ -1,5 +1,5 @@
-import { type FormEvent, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { type FormEvent, useEffect, useState } from "react"
+import { useNavigate, useSearchParams } from "react-router-dom"
 
 import { ArgosMark } from "@/components/logo"
 import { Button } from "@/components/ui/button"
@@ -8,11 +8,21 @@ import { Input } from "@/components/ui/input"
 import { api } from "@/lib/api"
 import { t } from "@/lib/i18n"
 
+type Provider = { id: string; name: string }
+
 export function LoginPage() {
   const navigate = useNavigate()
+  const [params] = useSearchParams()
   const [login, setLogin] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
+  const [error, setError] = useState(params.get("error") === "sso" ? t("ssoError") : "")
+  const [providers, setProviders] = useState<Provider[]>([])
+
+  useEffect(() => {
+    api<{ providers: Provider[] }>("/api/auth/sso")
+      .then((body) => setProviders(body.providers))
+      .catch(() => setProviders([]))
+  }, [])
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault()
@@ -46,6 +56,23 @@ export function LoginPage() {
             {t("login")}
           </Button>
         </form>
+        {providers.length ? (
+          <div className="space-y-2">
+            {providers.map((item) => (
+              <Button
+                key={item.id}
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  window.location.href = `/api/auth/sso/${item.id}`
+                }}
+              >
+                {t("loginWith", { name: item.name })}
+              </Button>
+            ))}
+          </div>
+        ) : null}
       </Card>
     </div>
   )
