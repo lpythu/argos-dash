@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Local UI with hot reload. Proxies /api to the office dash.
+# Override: DEV_API_TARGET=http://127.0.0.1:8080 ./dev
+set -euo pipefail
+
+cd "$(dirname "$0")/ui"
+
+if [[ ! -d node_modules ]]; then
+  npm ci
+fi
+
+export DEV_API_TARGET="${DEV_API_TARGET:-https://argos.s-aidc.com}"
+exec npm run dev

@@ -12,6 +12,8 @@ Login is local username/password plus optional SSO providers. See architecture A
 
 Git: https://acahti.saidc.ai/saidc/argos-dash — `git push origin dev` deploys office.
 
+Local UI: `./dev` from the repo root, then open http://127.0.0.1:5173 (proxies `/api` to https://argos.s-aidc.com).
+
 ## Lists
 
 Browser APIs use the Acahti page envelope. Default page size 20, max 50.
