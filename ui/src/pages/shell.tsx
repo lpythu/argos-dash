@@ -1,3 +1,4 @@
+import { ShellSkeleton } from "@/components/page-skeleton"
 import { useEffect, useState } from "react"
 import { Link, NavLink, Navigate, Outlet } from "react-router-dom"
 
@@ -40,12 +41,16 @@ export function AppShell() {
   }, [me])
 
   if (!ready) {
-    return null
+    return <ShellSkeleton />
   }
   if (!me) {
     return <Navigate to="/login" replace />
   }
 
+  return <ShellContent me={me} live={live} />
+}
+
+function ShellContent({ me, live }: { me: Me; live: number }) {
   async function logout() {
     await api("/api/logout", { method: "POST" })
     window.location.href = "/login"
@@ -53,8 +58,8 @@ export function AppShell() {
 
   return (
     <div className="min-h-svh">
-      <header className="flex items-center justify-between border-b px-6 py-3">
-        <nav className="flex items-center gap-4 text-sm">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b px-9 py-3">
+        <nav className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
           <Link to="/" className="flex items-center gap-2 font-medium">
             <ArgosMark className="size-6 text-foreground" />
             {t("brand")}
@@ -78,7 +83,7 @@ export function AppShell() {
           </Button>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl p-6">
+      <main className="w-full min-w-0 px-9 py-4 md:py-6">
         <Outlet />
       </main>
     </div>

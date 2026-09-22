@@ -1,4 +1,6 @@
 const zh = {
+  loading: "正在加载",
+  loadingHint: "正在加载，请稍候",
   brand: "argos dash",
   login: "登录",
   logout: "退出",
@@ -131,6 +133,8 @@ const zh = {
 }
 
 const en = {
+  loading: "Loading",
+  loadingHint: "Loading, please wait",
   brand: "argos dash",
   login: "Log in",
   logout: "Log out",

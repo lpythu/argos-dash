@@ -27,3 +27,22 @@ GET /api/catalog?page=1&page_size=20
 ## Data
 
 Postgres via `DATABASE_URL` (office: `saidc-pg` database `argos`). Run files via `DASH_DATA=/data` on hostPath `/var/lib/saidc/argos`.
+
+## UI development
+
+Use pnpm 11.12.0 (pinned in `ui/package.json`) and Node.js 22.13+.
+With Corepack installed, enable its package-manager shims once:
+
+```bash
+corepack enable
+./dev
+```
+
+Run `./dev` from the repo root. It installs dependencies with
+`pnpm install --frozen-lockfile` when `ui/node_modules` is missing, then starts Vite.
+Open http://127.0.0.1:5173. Vite proxies API requests to
+https://argos.s-aidc.com. To use a local backend, run
+`DEV_API_TARGET=http://127.0.0.1:8080 ./dev`.
+
+From `ui`, build the dashboard with `pnpm build` and the standalone report viewer with
+`pnpm build:report`. Commit `ui/pnpm-lock.yaml` when dependencies change.

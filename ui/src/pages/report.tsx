@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react"
+import { PageSkeleton } from "@/components/page-skeleton"
+import { useResource } from "@/hooks/use-resource"
+import { ErrorAlert } from "@/components/error-alert"
+import { useCallback } from "react"
 import { Link, useParams } from "react-router-dom"
 
 import { api } from "@/lib/api"
@@ -7,21 +10,15 @@ import { ReportView, type ReportPayload } from "@/report-view"
 
 export function ReportPage() {
   const { id } = useParams()
-  const [report, setReport] = useState<ReportPayload | null>(null)
-  const [error, setError] = useState("")
-
-  useEffect(() => {
-    if (!id) return
-    api<ReportPayload>(`/api/runs/${id}/report`)
-      .then(setReport)
-      .catch((err: Error) => setError(err.message || "failed"))
-  }, [id])
+  const loader = useCallback(() => api<ReportPayload>(`/api/runs/${id}/report`), [id])
+  const { data: report, error, loading } = useResource(loader)
+  if (loading) return <div className="space-y-4"><Back id={id} /><PageSkeleton /></div>
 
   if (error) {
     return (
       <div className="space-y-3">
         <Back id={id} />
-        <p className="text-sm text-destructive">{error}</p>
+        <ErrorAlert>{error}</ErrorAlert>
       </div>
     )
   }

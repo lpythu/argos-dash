@@ -18,7 +18,7 @@ function boot(): void {
   }
   createRoot(rootEl).render(
     <StrictMode>
-      <div className="mx-auto max-w-6xl p-6">
+      <div className="w-full min-w-0 px-9 py-4 md:py-6">
         <ReportView report={report} />
       </div>
     </StrictMode>,

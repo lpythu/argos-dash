@@ -6,8 +6,8 @@ set -euo pipefail
 cd "$(dirname "$0")/ui"
 
 if [[ ! -d node_modules ]]; then
-  npm ci
+  pnpm install --frozen-lockfile
 fi
 
 export DEV_API_TARGET="${DEV_API_TARGET:-https://argos.s-aidc.com}"
-exec npm run dev
+exec pnpm dev

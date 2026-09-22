@@ -3,10 +3,10 @@ ARG BASE_IMAGE=saidc-bj-registry.cn-beijing.cr.aliyuncs.com/base/saidc-uv:0.12.0
 
 FROM ${NODE_IMAGE} AS ui
 WORKDIR /ui
-COPY ui/package.json ui/package-lock.json ./
-RUN --mount=type=cache,target=/root/.npm npm ci
+COPY ui/package.json ui/pnpm-lock.yaml ./
+RUN --mount=type=cache,target=/pnpm/store pnpm install --frozen-lockfile --store-dir=/pnpm/store
 COPY ui/ ./
-RUN npm run build && npm run build:report
+RUN pnpm run build && pnpm run build:report
 
 FROM ${BASE_IMAGE}
 WORKDIR /app

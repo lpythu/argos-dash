@@ -1,9 +1,14 @@
-import { type FormEvent, useEffect, useState } from "react"
+import { LoadingRegion } from "@/components/page-skeleton"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useResource } from "@/hooks/use-resource"
+import { ErrorAlert } from "@/components/error-alert"
+import { Label } from "@/components/ui/label"
+import { type FormEvent, useState } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 
 import { ArgosMark } from "@/components/logo"
 import { Button } from "@/components/ui/button"
-import { Card, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { api } from "@/lib/api"
 import { t } from "@/lib/i18n"
@@ -16,14 +21,6 @@ export function LoginPage() {
   const [login, setLogin] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState(params.get("error") === "sso" ? t("ssoError") : "")
-  const [providers, setProviders] = useState<Provider[]>([])
-
-  useEffect(() => {
-    api<{ providers: Provider[] }>("/api/auth/sso")
-      .then((body) => setProviders(body.providers))
-      .catch(() => setProviders([]))
-  }, [])
-
   async function onSubmit(event: FormEvent) {
     event.preventDefault()
     setError("")
@@ -37,43 +34,56 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-svh items-center justify-center bg-muted p-6">
-      <Card className="w-full max-w-sm space-y-4">
+      <Card className="min-w-0 gap-0 py-0 w-full max-w-sm"><CardContent className="p-4 space-y-4">
         <CardTitle className="flex items-center gap-2">
           <ArgosMark className="size-6 text-foreground" />
           {t("brand")}
         </CardTitle>
         <form className="space-y-3" onSubmit={onSubmit}>
-          <label className="block space-y-1 text-sm">
+          <Label className="block space-y-1 text-sm">
             <span>{t("username")}</span>
             <Input value={login} onChange={(e) => setLogin(e.target.value)} autoComplete="username" />
-          </label>
-          <label className="block space-y-1 text-sm">
+          </Label>
+          <Label className="block space-y-1 text-sm">
             <span>{t("password")}</span>
             <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
-          </label>
-          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+          </Label>
+          {error ? <ErrorAlert>{error}</ErrorAlert> : null}
           <Button type="submit" className="w-full">
             {t("login")}
           </Button>
         </form>
-        {providers.length ? (
-          <div className="space-y-2">
-            {providers.map((item) => (
-              <Button
-                key={item.id}
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => {
-                  window.location.href = `/api/auth/sso/${item.id}`
-                }}
-              >
-                {t("loginWith", { name: item.name })}
-              </Button>
-            ))}
-          </div>
-        ) : null}
-      </Card>
+        <ProviderActions />
+      </CardContent></Card>
     </div>
   )
+}
+
+function renderActions({ providers }: { providers: Provider[] }): import("react").ReactNode {
+  return <div className="space-y-2">
+    {providers.map((item) => (
+      <Button
+        key={item.id}
+        type="button"
+        variant="outline"
+        className="w-full"
+        onClick={() => {
+          window.location.href = `/api/auth/sso/${item.id}`
+        } }
+      >
+        {t("loginWith", { name: item.name })}
+      </Button>
+    ))}
+  </div>
+}
+
+function loadProviders() {
+  return api<{ providers: Provider[] }>("/api/auth/sso")
+}
+
+function ProviderActions() {
+  const { data, loading, error } = useResource(loadProviders)
+  if (loading) return <LoadingRegion><Skeleton className="h-9 w-full" /></LoadingRegion>
+  if (error) return <ErrorAlert>{error}</ErrorAlert>
+  return renderActions({ providers: data?.providers || [] })
 }
