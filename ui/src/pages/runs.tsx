@@ -1,13 +1,13 @@
-import { TableSkeleton } from "@/components/page-skeleton"
+import { RunsToolbar } from "./lists/toolbars"
+import { useListFilters } from "./lists/use-filters"
+import { LIST_TABLE, ListColumns, ListEmpty, ListSkeleton } from "./lists/shared"
 import { ErrorAlert } from "@/components/error-alert"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Link } from "react-router-dom"
 
 import { Pager } from "@/components/pager"
 import { PassBar } from "@/components/pass-bar"
-import { SelectField } from "@/components/select-field"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
 import { usePage, type UsePage } from "@/hooks/use-page"
 import { api, packLabel, packTitle, sourceDetail, sourceHref, sourceLabel, type Run } from "@/lib/api"
 import { fmtDur, fmtWhen } from "@/lib/fmt"
@@ -26,10 +26,10 @@ function SourceCell({ run }: { run: Run }) {
       {detail ? <div className="text-xs text-muted-foreground">{detail}</div> : null}
     </>
   )
-  if (!href) return <TableCell className="whitespace-normal px-3 py-2">{inner}</TableCell>
+  if (!href) return <TableCell className="whitespace-normal wrap-anywhere px-3 py-3">{inner}</TableCell>
   return (
-    <TableCell className="whitespace-normal px-3 py-2">
-      <a className="underline-offset-2 hover:underline" href={href} target="_blank" rel="noreferrer">
+    <TableCell className="whitespace-normal wrap-anywhere px-3 py-3">
+      <a className="text-link" href={href} target="_blank" rel="noreferrer">
         {inner}
       </a>
     </TableCell>
@@ -38,9 +38,8 @@ function SourceCell({ run }: { run: Run }) {
 
 export function RunsPage() {
   const [envs, setEnvs] = useState<string[]>([])
-  const [env, setEnv] = useState("all")
-  const [status, setStatus] = useState("all")
-  const [q, setQ] = useState("")
+  const state = useListFilters({ q: "", env: "all", status: "all" })
+  const { q, env, status } = state.filters
   const list = usePage<Run>(
     async (query) => {
       const extra: Record<string, string | undefined> = {}
@@ -55,43 +54,35 @@ export function RunsPage() {
       return data
     },
     [env, status, q],
-    { intervalMs: 4000 },
+    { page: state.page, setPage: state.setPage, intervalMs: 4000 },
   )
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <h1 className="text-lg font-medium">{t("runs")}</h1>
-        <div className="flex flex-wrap items-center gap-2">
-          <Input className="w-64" value={q} onChange={(event) => setQ(event.target.value)} aria-label={t("filter")} placeholder={t("filter")} />
-          <SelectField label={t("env")} value={env} onValueChange={setEnv}
-            items={[{ value: "all", label: t("allEnvs") }, ...envs.map((value) => ({ value, label: value }))]} />
-          <SelectField label={t("status")} value={status} onValueChange={setStatus}
-            items={[{ value: "all", label: t("status") }, ...["running", "pass", "fail", "skip"].map((value) => ({ value, label: value }))]} />
-        </div>
-      </div>
+    <div className="space-y-6">
+      <RunsToolbar state={state} envs={envs} />
       {list.error ? <ErrorAlert>{list.error}</ErrorAlert> : null}
-      {list.loading ? <TableSkeleton /> : list.items.length ? renderRunRows({ list }) :
-        !list.error ? <p className="text-sm text-muted-foreground">{t("emptyRuns")}</p> : null}
+      {list.loading ? <ListSkeleton kind="runs" /> : list.items.length ? renderRunRows({ list }) :
+        !list.error ? <ListEmpty active={state.active} reset={state.reset} message={t("emptyRuns")} /> : null}
       {!list.loading ? <Pager page={list.page} hasMore={list.hasMore} onPage={list.setPage} /> : null}
     </div>
   )
 }
 
 function renderRunRows({ list }: { list: UsePage<Run> }): import("react").ReactNode {
-  return <div className="overflow-x-auto rounded-xl ring-1 ring-foreground/10">
-    <Table className="w-full text-left text-sm">
+  return <div className="overflow-hidden rounded-xl ring-1 ring-foreground/10">
+    <Table className={LIST_TABLE}>
+      <ListColumns kind="runs" />
       <TableHeader className="bg-muted/50 text-muted-foreground">
         <TableRow>
-          <TableHead className="w-px whitespace-nowrap px-3 py-2">{t("status")}</TableHead>
-          <TableHead className="px-3 py-2">id</TableHead>
-          <TableHead className="px-3 py-2">{t("actor")}</TableHead>
-          <TableHead className="px-3 py-2">{t("source")}</TableHead>
-          <TableHead className="px-3 py-2">{t("selector")}</TableHead>
-          <TableHead className="px-3 py-2">{t("pack")}</TableHead>
-          <TableHead className="w-px whitespace-nowrap px-3 py-2">{t("env")}</TableHead>
-          <TableHead className="w-px whitespace-nowrap px-3 py-2">P/F/S</TableHead>
-          <TableHead className="w-px whitespace-nowrap px-3 py-2">{t("elapsed")}</TableHead>
+          <TableHead className="whitespace-nowrap px-3 py-3">{t("status")}</TableHead>
+          <TableHead className="px-3 py-3">id</TableHead>
+          <TableHead className="px-3 py-3">{t("actor")}</TableHead>
+          <TableHead className="px-3 py-3">{t("source")}</TableHead>
+          <TableHead className="px-3 py-3">{t("selector")}</TableHead>
+          <TableHead className="px-3 py-3">{t("pack")}</TableHead>
+          <TableHead className="whitespace-nowrap px-3 py-3">{t("env")}</TableHead>
+          <TableHead className="whitespace-nowrap px-3 py-3">P/F/S</TableHead>
+          <TableHead className="whitespace-nowrap px-3 py-3">{t("elapsed")}</TableHead>
         </TableRow>
       </TableHeader>
       {renderRunsTable({ list })}
@@ -103,11 +94,11 @@ function renderRunsTable({ list }: { list: UsePage<Run> }) {
   return <TableBody>
     {list.items.map((run) => (
       <TableRow key={run.id} className="border-t align-top">
-        <TableCell className="whitespace-normal px-3 py-2">
+        <TableCell className="whitespace-normal wrap-anywhere px-3 py-3">
           <Badge variant={statusVariant(run.status)}>{run.status}</Badge>
         </TableCell>
-        <TableCell className="whitespace-normal px-3 py-2">
-          <Link to={`/runs/${run.id}`} className="font-mono underline-offset-2 hover:underline">
+        <TableCell className="whitespace-normal wrap-anywhere px-3 py-3">
+          <Link to={`/runs/${run.id}`} className="font-mono text-link">
             {run.sid || run.id}
           </Link>
           <div className="text-xs text-muted-foreground">{fmtWhen(run.created_at)}</div>
@@ -115,19 +106,19 @@ function renderRunsTable({ list }: { list: UsePage<Run> }) {
             <PassBar passed={run.passed} failed={run.failed} skipped={run.skipped} />
           </div>
         </TableCell>
-        <TableCell className="whitespace-normal px-3 py-2">{run.source?.actor || "—"}</TableCell>
+        <TableCell className="whitespace-normal wrap-anywhere px-3 py-3">{run.source?.actor || "—"}</TableCell>
         <SourceCell run={run} />
-        <TableCell className="whitespace-normal px-3 py-2 font-mono text-xs">{run.queries?.join(" ") || "—"}</TableCell>
-        <TableCell className="whitespace-normal px-3 py-2" title={(run.packs || []).map(packTitle).join(", ")}>
+        <TableCell className="whitespace-normal wrap-anywhere px-3 py-3 font-mono text-xs">{run.queries?.join(" ") || "—"}</TableCell>
+        <TableCell className="whitespace-normal wrap-anywhere px-3 py-3" title={(run.packs || []).map(packTitle).join(", ")}>
           {packLabel(run.packs) || "—"}
         </TableCell>
-        <TableCell className="whitespace-nowrap px-3 py-2">
+        <TableCell className="whitespace-normal wrap-anywhere px-3 py-3">
           {run.env || "—"} · {run.mode}
         </TableCell>
-        <TableCell className="whitespace-nowrap px-3 py-2 tabular-nums">
+        <TableCell className="whitespace-nowrap px-3 py-3 tabular-nums">
           {run.passed} / {run.failed} / {run.skipped}
         </TableCell>
-        <TableCell className="whitespace-nowrap px-3 py-2">{fmtDur(run.elapsed_s)}</TableCell>
+        <TableCell className="whitespace-nowrap px-3 py-3">{fmtDur(run.elapsed_s)}</TableCell>
       </TableRow>
     ))}
   </TableBody>

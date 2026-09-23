@@ -141,7 +141,7 @@ export function OperationBlock({
       {(operation.artifacts || []).length ? (
         <div className="mt-2 space-x-2 text-xs">
           {(operation.artifacts || []).map((path) => (
-            <a key={path} className="hover:underline" href={href(path)} target="_blank" rel="noreferrer">
+            <a key={path} className="text-link" href={href(path)} target="_blank" rel="noreferrer">
               {path.split("/").pop()}
             </a>
           ))}

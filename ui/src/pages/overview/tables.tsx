@@ -51,7 +51,7 @@ function IssueRow({ issue }: { issue: OverviewIssue }) {
         {issue.max_streak >= REPEATED_FAILURE_COUNT ? <div className="text-xs text-destructive">×{issue.max_streak}</div> : null}
       </TableCell>
       <TableCell className="whitespace-normal py-3">
-        <Link to={`/runs/${issue.latest_run}`} className="font-mono text-xs wrap-anywhere hover:underline">{issue.latest_slug}</Link>
+        <Link to={`/runs/${issue.latest_run}`} className="font-mono text-xs wrap-anywhere text-link">{issue.latest_slug}</Link>
         <div className="mt-1 text-xs text-muted-foreground">{fmtWhen(issue.last)}</div>
       </TableCell>
     </TableRow>
@@ -63,7 +63,7 @@ export function RecentRunsPanel({ runs }: { runs: readonly Run[] }) {
     <Card className="min-w-0 gap-0 py-0"><CardContent className="p-4 flex min-w-0 flex-col gap-4 p-5">
       <div className="flex items-center justify-between gap-3">
         <h2 className="font-medium">{t("recentRuns")}</h2>
-        <Link to="/runs" className="text-sm text-muted-foreground hover:underline">{t("viewAll")}</Link>
+        <Link to="/runs" className="text-sm text-link">{t("viewAll")}</Link>
       </div>
       {runs.length ? (
         <div className="overflow-x-auto">
@@ -88,7 +88,7 @@ function RecentRunRow({ run }: { run: Run }) {
   return (
     <TableRow className="align-top">
       <TableCell className="whitespace-normal py-3 pr-6">
-        <Link to={`/runs/${run.id}`} className="font-mono text-xs hover:underline">{run.sid || run.id}</Link>
+        <Link to={`/runs/${run.id}`} className="font-mono text-xs text-link">{run.sid || run.id}</Link>
         <div className="mt-1 whitespace-nowrap text-xs text-muted-foreground">{fmtWhen(run.created_at)}</div>
       </TableCell>
       <TableCell className="whitespace-normal py-3 pr-6 whitespace-nowrap"><Badge variant={statusVariant(run.status)}>{run.status}</Badge></TableCell>

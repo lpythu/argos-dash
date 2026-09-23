@@ -83,7 +83,7 @@ export function renderIssueRows({ errors }: { errors: ErrorGroup[] }) {
         <TableCell className="whitespace-normal py-2">{row.iterations.join(", ")}</TableCell>
         <TableCell className="whitespace-normal py-2">
           <a
-            className="text-sm hover:underline"
+            className="text-sm text-link"
             href={`#${caseAnchor(row.representative_case, row.representative_iteration)}`}
           >
             {t("view")}
@@ -109,7 +109,7 @@ export function renderArtifacts({ report, href }: { report: ReportPayload; href:
           {(report.artifacts || []).map((row) => (
             <TableRow key={row.path} className="border-t">
               <TableCell className="whitespace-normal py-2">
-                <a className="hover:underline" href={href(row.path)} target="_blank" rel="noreferrer">
+                <a className="text-link" href={href(row.path)} target="_blank" rel="noreferrer">
                   {row.path}
                 </a>
               </TableCell>

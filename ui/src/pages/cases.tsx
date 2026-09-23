@@ -1,4 +1,6 @@
-import { TableSkeleton } from "@/components/page-skeleton"
+import { CasesToolbar } from "./lists/toolbars"
+import { useListFilters } from "./lists/use-filters"
+import { LIST_TABLE, ListColumns, ListEmpty, ListSkeleton } from "./lists/shared"
 import { ErrorAlert } from "@/components/error-alert"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -6,10 +8,7 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 
 import { Pager } from "@/components/pager"
-import { SelectField } from "@/components/select-field"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { usePage, type UsePage } from "@/hooks/use-page"
 import { api, type Catalog, type CatalogCase } from "@/lib/api"
 import { fmtDur } from "@/lib/fmt"
@@ -19,9 +18,8 @@ import { addPlan, togglePlan, usePlanIds } from "@/lib/plan"
 import { statusVariant } from "@/lib/status"
 
 export function CasesPage() {
-  const [q, setQ] = useState("")
-  const [pack, setPack] = useState("all")
-  const [group, setGroup] = useState("all")
+  const state = useListFilters({ q: "", pack: "all", group: "all" })
+  const { q, pack, group } = state.filters
   const [facets, setFacets] = useState<{ packs: string[]; groups: string[] }>({ packs: [], groups: [] })
   const selected = usePlanIds()
   const list = usePage<CatalogCase>(
@@ -35,47 +33,36 @@ export function CasesPage() {
       return data
     },
     [q, pack, group],
+    { page: state.page, setPage: state.setPage },
   )
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <h1 className="text-lg font-medium">{t("cases")}</h1>
-        <div className="flex flex-wrap items-center gap-2">
-          <Input className="w-56" value={q} onChange={(event) => setQ(event.target.value)} aria-label={t("filter")} placeholder={t("filter")} />
-          <SelectField label={t("pack")} value={pack} onValueChange={setPack}
-            items={[{ value: "all", label: t("pack") }, ...facets.packs.map((value) => ({ value, label: value }))]} />
-          <SelectField label={t("group")} value={group} onValueChange={setGroup}
-            items={[{ value: "all", label: t("group") }, ...facets.groups.map((value) => ({ value, label: value }))]} />
-          <Button disabled={list.loading || !!list.error} variant="outline" onClick={() => addPlan(list.items.map((item) => item.id))}>
-            {t("addVisible")}
-          </Button>
-          <Link to="/plan" className="text-sm text-muted-foreground hover:underline">
-            {t("plan")} ({selected.length})
-          </Link>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <CasesToolbar state={state} facets={facets} selectedCount={selected.length}
+        disableAdd={list.loading || !!list.error || !list.items.length}
+        addPage={() => addPlan(list.items.map((item) => item.id))} />
       {list.error ? <ErrorAlert>{list.error}</ErrorAlert> : null}
-      {list.loading ? <TableSkeleton /> : list.items.length ? renderCasesTable({ list, selected }) :
-        !list.error ? <p className="text-sm text-muted-foreground">{t("emptyCases")}</p> : null}
+      {list.loading ? <ListSkeleton kind="cases" /> : list.items.length ? renderCasesTable({ list, selected }) :
+        !list.error ? <ListEmpty active={state.active} reset={state.reset} message={t("emptyCases")} /> : null}
       {!list.loading ? <Pager page={list.page} hasMore={list.hasMore} onPage={list.setPage} /> : null}
     </div>
   )
 }
 
 function renderCasesTable({ list, selected }: { list: UsePage<CatalogCase>; selected: string[] }): import("react").ReactNode {
-  return <div className="overflow-x-auto rounded-xl ring-1 ring-foreground/10">
-    <Table className="w-full text-left text-sm">
+  return <div className="overflow-hidden rounded-xl ring-1 ring-foreground/10">
+    <Table className={LIST_TABLE}>
+      <ListColumns kind="cases" />
       <TableHeader className="bg-muted/50 text-muted-foreground">
         <TableRow>
-          <TableHead className="px-3 py-2 w-8" />
-          <TableHead className="px-3 py-2">id</TableHead>
-          <TableHead className="px-3 py-2">{t("pack")}</TableHead>
-          <TableHead className="w-px whitespace-nowrap px-3 py-2">{t("typical")}</TableHead>
-          <TableHead className="px-3 py-2">{t("mutex")}</TableHead>
-          <TableHead className="w-px whitespace-nowrap px-3 py-2">{t("lastStatus")}</TableHead>
-          <TableHead className="w-px whitespace-nowrap px-3 py-2">{t("lastEnv")}</TableHead>
-          <TableHead className="px-3 py-2">{t("lastRun")}</TableHead>
+          <TableHead className="px-3 py-3" />
+          <TableHead className="px-3 py-3">id</TableHead>
+          <TableHead className="px-3 py-3">{t("pack")}</TableHead>
+          <TableHead className="whitespace-nowrap px-3 py-3">{t("typical")}</TableHead>
+          <TableHead className="px-3 py-3">{t("mutex")}</TableHead>
+          <TableHead className="whitespace-nowrap px-3 py-3">{t("lastStatus")}</TableHead>
+          <TableHead className="whitespace-nowrap px-3 py-3">{t("lastEnv")}</TableHead>
+          <TableHead className="px-3 py-3">{t("lastRun")}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -89,26 +76,26 @@ function renderCasesTable({ list, selected }: { list: UsePage<CatalogCase>; sele
 
 function CaseRow({ item, on }: { item: CatalogCase; on: boolean }) {
   return (
-    <TableRow className={`border-t ${on ? "bg-muted/40" : ""}`}>
-      <TableCell className="whitespace-normal px-3 py-2">
+    <TableRow className={`border-t align-top ${on ? "bg-muted/40" : ""}`}>
+      <TableCell className="whitespace-normal wrap-anywhere px-3 py-3">
         <Checkbox aria-label={`${t("selected")}: ${item.title || item.id}`} checked={on} onCheckedChange={() => togglePlan(item.id)} />
       </TableCell>
-      <TableCell className="whitespace-normal px-3 py-2">
+      <TableCell className="whitespace-normal wrap-anywhere px-3 py-3">
         <code>{item.id}</code>
         <div className="text-xs text-muted-foreground">{item.title}</div>
       </TableCell>
-      <TableCell className="whitespace-normal px-3 py-2">
+      <TableCell className="whitespace-normal wrap-anywhere px-3 py-3">
         {item.pack || "—"}
         {item.group ? <div className="text-xs text-muted-foreground">{item.group}</div> : null}
       </TableCell>
-      <TableCell className="whitespace-nowrap px-3 py-2">{item.typical_s ? fmtDur(item.typical_s) : "—"}</TableCell>
-      <TableCell className="whitespace-normal px-3 py-2">{item.mutex || (item.resources || []).join(", ") || "—"}</TableCell>
-      <TableCell className="whitespace-normal px-3 py-2">
+      <TableCell className="whitespace-nowrap px-3 py-3">{item.typical_s ? fmtDur(item.typical_s) : "—"}</TableCell>
+      <TableCell className="whitespace-normal wrap-anywhere px-3 py-3">{item.mutex || (item.resources || []).join(", ") || "—"}</TableCell>
+      <TableCell className="whitespace-normal wrap-anywhere px-3 py-3">
         <Badge variant={statusVariant(item.status)}>{item.status}</Badge>
       </TableCell>
-      <TableCell className="whitespace-nowrap px-3 py-2">{item.env || "—"}</TableCell>
-      <TableCell className="whitespace-normal px-3 py-2">
-        <Link to={`/runs/${item.run_id}`} className="font-mono hover:underline">
+      <TableCell className="whitespace-normal wrap-anywhere px-3 py-3">{item.env || "—"}</TableCell>
+      <TableCell className="whitespace-normal wrap-anywhere px-3 py-3">
+        <Link to={`/runs/${item.run_id}`} className="font-mono text-link">
           {item.run_id}
         </Link>
       </TableCell>

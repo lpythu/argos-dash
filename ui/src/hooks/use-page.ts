@@ -1,6 +1,5 @@
 import { useResource } from "./use-resource"
-import { useCallback, useState } from "react"
-import { useSearchParams } from "react-router-dom"
+import { useCallback } from "react"
 
 import type { Page, PageQuery } from "@/lib/page"
 
@@ -19,31 +18,14 @@ export type UsePage<T> = {
 
 export function usePage<T>(
   loader: (q: PageQuery) => Promise<Page<T>>,
-  deps: readonly unknown[] = [],
-  opts?: { param?: string; pageSize?: number; url?: boolean; intervalMs?: number },
+  deps: readonly unknown[],
+  opts: { page: number; setPage: (page: number) => void; pageSize?: number; intervalMs?: number },
 ): UsePage<T> {
-  const url = opts?.url !== false
-  const param = opts?.param || "page"
-  const pageSize = opts?.pageSize ?? 20
-  const intervalMs = opts?.intervalMs
-  const [sp, setSp] = useSearchParams()
-  const [local, setLocal] = useState(1)
-  const page = url ? Math.max(1, Number(sp.get(param) || 1) || 1) : local
+  const { page, setPage, intervalMs } = opts
+  const pageSize = opts.pageSize ?? 20
   // Caller dependencies identify the query independently of inline loader identity.
   const load = useCallback(() => loader({ page, page_size: pageSize }), [page, pageSize, ...deps])
   const { data, loading, error, reload } = useResource(load, intervalMs)
-
-  function setPage(n: number) {
-    const next = Math.max(1, n)
-    if (!url) {
-      setLocal(next)
-      return
-    }
-    const q = new URLSearchParams(sp)
-    if (next <= 1) q.delete(param)
-    else q.set(param, String(next))
-    setSp(q, { replace: true })
-  }
 
   const items = data?.items || []
   return {

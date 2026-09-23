@@ -57,7 +57,7 @@ it("shows an actual empty list after a successful empty response", async () => {
 it("shows Skill skeletons and surfaces HTTP failures", async () => {
   let finish!: (value: Response) => void
   vi.stubGlobal("fetch", vi.fn(() => new Promise<Response>((resolve) => { finish = resolve })))
-  render(<SkillPage />)
+  render(<MemoryRouter><SkillPage /></MemoryRouter>)
   expect(screen.getByRole("status")).toBeTruthy()
   expect((screen.getByRole("button", { name: t("copySkill") }) as HTMLButtonElement).disabled).toBe(true)
   await act(async () => finish(new Response("missing", { status: 404 })))

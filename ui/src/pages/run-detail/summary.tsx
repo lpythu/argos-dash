@@ -29,7 +29,7 @@ export function renderResource({ audit, run }: { audit: Record<string, unknown>;
         <ul className="space-y-1 text-sm">
           {run.files.map((file) => (
             <li key={file.path}>
-              <a className="hover:underline" href={`/api/runs/${run.id}/file?path=${encodeURIComponent(file.path)}`}>
+              <a className="text-link" href={`/api/runs/${run.id}/file?path=${encodeURIComponent(file.path)}`}>
                 {file.path}
               </a>
               <span className="text-xs text-muted-foreground"> · {file.size}</span>
@@ -89,7 +89,7 @@ export function renderSource({ run }: { run: Run }) {
     ) : null}
     {sourceHref(run.source) ? (
       <p>
-        <a className="underline-offset-2 hover:underline" href={sourceHref(run.source)} target="_blank" rel="noreferrer">
+        <a className="text-link" href={sourceHref(run.source)} target="_blank" rel="noreferrer">
           {sourceLabel(run.source, run.runner)}
         </a>
       </p>

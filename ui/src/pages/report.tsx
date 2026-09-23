@@ -38,7 +38,7 @@ export function ReportPage() {
 function Back({ id }: { id?: string }) {
   return (
     <div className="flex items-center gap-3 text-sm">
-      <Link className="text-muted-foreground hover:text-foreground" to={id ? `/runs/${id}` : "/runs"}>
+      <Link className="text-link" to={id ? `/runs/${id}` : "/runs"}>
         {t("backToRun")}
       </Link>
       <span className="text-muted-foreground">/</span>

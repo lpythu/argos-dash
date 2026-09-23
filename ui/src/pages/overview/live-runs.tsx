@@ -18,7 +18,7 @@ export function LiveRunsPanel({ runs }: { runs: readonly LiveRun[] }) {
         <ul className="divide-y">{runs.map((run) => <LiveRunItem key={run.id} run={run} />)}</ul>
       ) : <p className="py-2 text-sm text-muted-foreground">{t("emptyLive")}</p>}
       <div className="border-t pt-4">
-        <Link to="/plan" className="text-sm text-muted-foreground hover:underline">{t("goPlan")}</Link>
+        <Link to="/plan" className="text-sm text-link">{t("goPlan")}</Link>
       </div>
     </CardContent></Card>
   )
@@ -28,7 +28,7 @@ function LiveRunItem({ run }: { run: LiveRun }) {
   return (
     <li className="flex flex-col gap-3 py-5 first:pt-0 last:pb-0">
       <div className="flex items-start justify-between gap-3">
-        <Link to={`/runs/${run.id}`} className="min-w-0 font-mono font-medium wrap-anywhere hover:underline">{run.sid || run.id}</Link>
+        <Link to={`/runs/${run.id}`} className="min-w-0 font-mono font-medium wrap-anywhere text-link">{run.sid || run.id}</Link>
         <Badge className="shrink-0" variant={statusVariant(run.status)}>{run.status}</Badge>
       </div>
       <p className="text-xs text-muted-foreground wrap-anywhere">

@@ -1,0 +1,6 @@
+@utility text-link {
+  @apply cursor-pointer text-sky-700 decoration-1 underline-offset-4 transition-colors;
+  @apply hover:text-sky-900 hover:underline;
+  @apply focus-visible:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring;
+  @apply dark:text-sky-400 dark:hover:text-sky-300;
+}
