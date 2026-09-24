@@ -1,0 +1,35 @@
+name: argos-dash
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: argos
+      POSTGRES_DB: argos
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set a database password in .env}
+    volumes:
+      - database:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U argos -d argos"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  dash:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+asyncpg://argos:${POSTGRES_PASSWORD}@postgres:5432/argos
+      DASH_SECRET: ${DASH_SECRET:?set a random session secret in .env}
+      DASH_ADMIN_USER: ${DASH_ADMIN_USER:-admin}
+      DASH_ADMIN_PASSWORD: ${DASH_ADMIN_PASSWORD:?set an initial admin password in .env}
+      DASH_PUBLIC_URL: ${DASH_PUBLIC_URL:-http://localhost:8080}
+      DASH_DATA: /data
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - runs:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+volumes:
+  database:
+  runs:

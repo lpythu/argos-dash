@@ -26,14 +26,14 @@ Edit styles here. Do not open the GitHub `argos` library for CSS. There is no `@
 ```mermaid
 flowchart LR
   api["dash API"]
-  pg["Postgres saidc-pg / argos"]
+  pg["Postgres postgres / argos"]
   disk["container /data"]
-  host["office hostPath /var/lib/saidc/argos"]
+  host["office hostPath /var/lib/argos"]
   api --> pg
   api --> disk --> host
 ```
 
-Run metadata, users, and comments live in Postgres (`DATABASE_URL`). `report.json` and other run files live under `DASH_DATA` (default `/data`), which Helm mounts from the office host path `/var/lib/saidc/argos`. Secrets are env from the chart Secret, not files on that volume.
+Run metadata, users, and comments live in Postgres (`DATABASE_URL`). `report.json` and other run files live under `DASH_DATA` (default `/data`), which Helm mounts from the office host path `/var/lib/argos`. Secrets are env from the chart Secret, not files on that volume.
 
 ## Ship
 

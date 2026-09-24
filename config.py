@@ -42,7 +42,7 @@ def skill_token() -> str:
 
 
 def admin_user() -> str:
-    return os.environ.get("DASH_ADMIN_USER", "lipeiyang")
+    return os.environ.get("DASH_ADMIN_USER", "admin")
 
 
 def admin_password() -> str:

@@ -6,3 +6,5 @@ ui/dist/
 ui/dist-report/
 *.egg-info/
 .DS_Store
+
+!.env.example

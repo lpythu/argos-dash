@@ -1,9 +1,9 @@
-namespace: platform
+namespace: argos
 replicas: 1
 image:
-  repository: harbor.saidc/platform/argos
-  tag: latest
-  pullSecret: harbor-robot
+  repository: your-registry.example.com/argos-dash
+  tag: 0.6.0
+  pullSecret: ""
 secret: {}
 workloads:
   argos:
@@ -13,7 +13,7 @@ workloads:
     portName: http
     healthPath: /health
     probe: http
-    dataPath: /var/lib/saidc/argos
+    dataPath: /var/lib/argos
     env: {}
     ingress:
       enabled: false
