@@ -2,7 +2,7 @@
 ARG NODE_IMAGE=node:22-bookworm-slim
 ARG BASE_IMAGE=python:3.12-slim-bookworm
 FROM ${NODE_IMAGE} AS ui
-RUN npm install --global pnpm@11.12.0
+RUN npm install --global pnpm@11.27.1
 WORKDIR /ui
 COPY ui/package.json ui/pnpm-lock.yaml ./
 RUN --mount=type=cache,target=/pnpm/store pnpm install --frozen-lockfile --store-dir=/pnpm/store
