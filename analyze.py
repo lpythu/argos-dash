@@ -16,6 +16,15 @@ _STAMP_RE = re.compile(r"\b20\d{2}[-/]?\d{2}[-/]?\d{2}[T _-]?\d{2}:?\d{2}:?\d{2}
 
 LIVE = frozenset({"running", "paused"})
 
+# CaseRow.status -> API tally field (passed/failed/…); never use status as the key.
+STATUS_COUNT = {
+    "pass": "passed",
+    "fail": "failed",
+    "skip": "skipped",
+    "interrupted": "interrupted",
+    "running": "running",
+}
+
 
 def _run_id(run: "Run") -> str:
     return run.sid or str(run.id)
@@ -38,18 +47,11 @@ def is_cleanup(error: str) -> bool:
 
 
 def counts(run: "Run") -> dict[str, int]:
-    summary = run.summary if isinstance(run.summary, dict) else {}
-    if any(key in summary for key in ("passed", "failed", "skipped")):
-        return {
-            "passed": int(summary.get("passed") or 0),
-            "failed": int(summary.get("failed") or 0),
-            "skipped": int(summary.get("skipped") or 0),
-            "interrupted": int(summary.get("interrupted") or 0),
-        }
     out = {"passed": 0, "failed": 0, "skipped": 0, "interrupted": 0}
     for row in run.cases:
-        if row.status in out:
-            out[row.status] += 1
+        key = STATUS_COUNT.get(row.status)
+        if key in out:
+            out[key] += 1
     return out
 
 
@@ -136,8 +138,9 @@ def detail(run: "Run", root: Path) -> dict[str, Any]:
         last = rows[-1]
         last_extra = extra.get((spec_id, last.iteration), {})
         for row in rows:
-            if row.status in tallies:
-                tallies[row.status] += 1
+            key = STATUS_COUNT.get(row.status)
+            if key in tallies:
+                tallies[key] += 1
             iterations.append({"iteration": row.iteration, "status": row.status})
             payload = extra.get((spec_id, row.iteration), {})
             metrics = payload.get("metrics") if isinstance(payload.get("metrics"), dict) else row.metrics
