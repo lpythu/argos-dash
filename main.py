@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, select
 
 from auth import get_user_by_login, hash_password
-from config import admin_password, admin_user, data_root
+from config import admin_password, admin_user, data_root, secret_key
 from database import Session
 from models import User
 from routers.auth import router as auth_router
@@ -23,6 +23,7 @@ INGEST_VERSION = "1"
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    secret_key()  # Reject unsafe session signing configuration before accepting traffic.
     data_root().mkdir(parents=True, exist_ok=True)
     password = admin_password()
     if password:

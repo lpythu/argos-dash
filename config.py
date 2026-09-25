@@ -14,7 +14,10 @@ def data_root() -> Path:
 
 
 def secret_key() -> str:
-    return os.environ.get("DASH_SECRET", "change-me")
+    value = os.environ.get("DASH_SECRET", "")
+    if len(value.encode()) < 32 or value.strip() == "change-me":
+        raise RuntimeError("DASH_SECRET must be a random secret of at least 32 bytes")
+    return value
 
 
 def ingest_token() -> str:
